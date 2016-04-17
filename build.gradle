@@ -50,6 +50,11 @@ eclipse {
 task wrapper(type: Wrapper) {
 	gradleVersion = '2.12'
 }
+
+task stage {
+	dependsOn assemble
+}
+
 group 'kissybnts'
 version '1.0-SNAPSHOT'
 
