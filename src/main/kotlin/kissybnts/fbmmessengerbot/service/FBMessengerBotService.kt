@@ -42,9 +42,9 @@ class FBMessengerBotService {
 
     fun sentToMessenger(request: HttpServletRequest): String {
         val jb = request.reader.lines().toArray().joinToString()
+        logger.info("request : $jb")
         val botResponse = ObjectMapper().readValue(jb, FBmessengerBotWebhook::class.java)
-        botResponse.entry.forEach { it.messaging.forEach { m -> logger.info("sentToMessenger() text: ${m.message.text}") } }
-        botResponse.entry.forEach { it.messaging.forEach { m -> sendMessage(m) } }
+        botResponse.entry.forEach { e -> e.messaging.forEach { m -> sendMessage(m) } }
         return "ok"
     }
 
@@ -57,7 +57,7 @@ class FBMessengerBotService {
             val post: HttpPost = HttpPost(builder.build()).apply { setHeader("Content-Type", "application/json; charset=UTF-8") }
 
             val text: List<String> = message.text.split("")
-            text.forEach { logger.info("sendMessage() text: $it") }
+            logger.info("text: ${message.text}")
             HttpClients.createDefault().use { c -> text.forEach { t -> sendOneRequest(c, post, recipient, t) } }
         } catch(ie: IOException) {
             println("sendMessage : IOException")

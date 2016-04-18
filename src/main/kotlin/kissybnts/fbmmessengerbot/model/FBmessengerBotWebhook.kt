@@ -1,8 +1,11 @@
 package kissybnts.fbmmessengerbot.model
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+
 /**
  * .
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 class FBmessengerBotWebhook() {
     lateinit var `object`: String
     lateinit var entry:List<FBMessengerBotWebhookEntry>

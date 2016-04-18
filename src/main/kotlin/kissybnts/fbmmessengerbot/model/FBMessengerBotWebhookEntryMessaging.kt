@@ -1,10 +1,12 @@
 package kissybnts.fbmmessengerbot.model
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import java.math.BigDecimal
 
 /**
  * .
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 class FBMessengerBotWebhookEntryMessaging() {
     lateinit var sender: Map<String, BigDecimal>
     lateinit var  recipient: Map<String, BigDecimal>
