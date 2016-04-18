@@ -10,6 +10,8 @@ import org.apache.http.client.utils.URIBuilder
 import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.CloseableHttpClient
 import org.apache.http.impl.client.HttpClients
+import org.apache.log4j.Logger
+import org.apache.log4j.spi.LoggerFactory
 import org.springframework.stereotype.Service
 import java.io.IOException
 import java.nio.charset.StandardCharsets
@@ -20,15 +22,17 @@ import javax.servlet.http.HttpServletRequest
  */
 @Service
 class FBMessengerBotService {
-    private val VERIFY_TOKEN: String = ""//System.getenv("FBMESSENGERBOT_VERIFY_TOKEN")
-    private val ACCESS_TOKEN: String = ""//System.getenv("FBMESSENGERBOT_ACCESS_TOKEN")
+    private val VERIFY_TOKEN: String = System.getenv("FBMESSENGERBOT_VERIFY_TOKEN")
+    private val ACCESS_TOKEN: String = System.getenv("FBMESSENGERBOT_ACCESS_TOKEN")
     private val ENDPOINT: String = "https://graph.facebook.com/v2.6/me/messages"
+    private val logger: Logger = Logger.getLogger(FBMessengerBotService::class.java)
 
     fun verify(request: HttpServletRequest): String {
         try {
             val paramMap = request.parameterMap
             if(paramMap["hub.mode"]!![0].equals("subscribe") && paramMap["hub.verify_token"]!![0].equals(VERIFY_TOKEN)){
-                return paramMap[""]!!.joinToString()
+                logger.info(paramMap["hub.challenge"]!!.joinToString())
+                return paramMap["hub.challenge"]!!.joinToString()
             }
         } catch(e: Exception){
             e.printStackTrace()
@@ -39,8 +43,9 @@ class FBMessengerBotService {
     fun sentToMessenger(request: HttpServletRequest): String {
         val jb = request.reader.lines().toArray().joinToString()
         val botResponse = ObjectMapper().readValue(jb, FBmessengerBotWebhook::class.java)
-
-        return ""
+        botResponse.entry.forEach { it.messaging.forEach { m -> logger.info("sentToMessenger() text: ${m.message.text}") } }
+        botResponse.entry.forEach { it.messaging.forEach { m -> sendMessage(m) } }
+        return "ok"
     }
 
     fun sendMessage(messaging: FBMessengerBotWebhookEntryMessaging) {
@@ -52,6 +57,7 @@ class FBMessengerBotService {
             val post: HttpPost = HttpPost(builder.build()).apply { setHeader("Content-Type", "application/json; charset=UTF-8") }
 
             val text: List<String> = message.text.split("")
+            text.forEach { logger.info("sendMessage() text: $it") }
             HttpClients.createDefault().use { c -> text.forEach { t -> sendOneRequest(c, post, recipient, t) } }
         } catch(ie: IOException) {
             println("sendMessage : IOException")
