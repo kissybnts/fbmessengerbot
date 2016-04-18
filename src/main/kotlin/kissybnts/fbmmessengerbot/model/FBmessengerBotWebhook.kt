@@ -3,5 +3,12 @@ package kissybnts.fbmmessengerbot.model
 /**
  * .
  */
-data class FBmessengerBotWebhook(val `object`: String, val entry:List<FBMessengerBotWebhookEntry>) {
+class FBmessengerBotWebhook() {
+    lateinit var `object`: String
+    lateinit var entry:List<FBMessengerBotWebhookEntry>
+
+    constructor(`object`: String, entry:List<FBMessengerBotWebhookEntry>): this(){
+        this.`object` = `object`
+        this.entry = entry
+    }
 }
