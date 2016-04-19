@@ -7,13 +7,13 @@ import com.fasterxml.jackson.annotation.JsonProperty
  * .
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-class FBmessengerBotWebhook() {
+open class FBmessengerBotWebhook() {
     @JsonProperty
     lateinit var `object`: String
     @JsonProperty
-    lateinit var entry:List<FBMessengerBotWebhookEntry>
+    lateinit var entry: MutableList<FBMessengerBotWebhookEntry>
 
-    constructor(`object`: String, entry:List<FBMessengerBotWebhookEntry>): this(){
+    constructor(`object`: String, entry: MutableList<FBMessengerBotWebhookEntry>): this(){
         this.`object` = `object`
         this.entry = entry
     }

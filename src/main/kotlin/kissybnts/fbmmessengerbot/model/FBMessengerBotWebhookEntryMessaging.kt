@@ -8,7 +8,7 @@ import java.math.BigDecimal
  * .
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-class FBMessengerBotWebhookEntryMessaging() {
+open class FBMessengerBotWebhookEntryMessaging() {
     @JsonProperty
     lateinit var sender: Map<String, BigDecimal>
     @JsonProperty
