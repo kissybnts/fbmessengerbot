@@ -17,5 +17,8 @@ class FBMessengerBotController @Autowired constructor (private val botService: F
     fun verify(request: HttpServletRequest): String = botService.verify(request)
 
     @RequestMapping(method = arrayOf(RequestMethod.POST))
-    fun message(request: HttpServletRequest): String = botService.sentToMessenger(request)
+    fun message(request: HttpServletRequest): String {
+        println("get request")
+        return botService.sentToMessenger(request)
+    }
 }
