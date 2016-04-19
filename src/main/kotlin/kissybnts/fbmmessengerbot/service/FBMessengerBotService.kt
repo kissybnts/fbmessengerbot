@@ -1,10 +1,6 @@
 package kissybnts.fbmmessengerbot.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import com.squareup.moshi.Moshi
 import kissybnts.fbmmessengerbot.model.FBMessengerBotWebhookEntryMessaging
 import kissybnts.fbmmessengerbot.model.FBMessengerBotWebhookEntryMessagingMessage
 import kissybnts.fbmmessengerbot.model.FBMessengerBotWebhookRecipient
@@ -15,7 +11,6 @@ import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.CloseableHttpClient
 import org.apache.http.impl.client.HttpClients
 import org.apache.log4j.Logger
-import org.apache.log4j.spi.LoggerFactory
 import org.springframework.stereotype.Service
 import java.io.IOException
 import java.nio.charset.StandardCharsets
@@ -53,7 +48,7 @@ class FBMessengerBotService {
             request.reader.lines().toArray().forEach { sb.append(it) }
             val jb = sb.toString()
             logger.info("sentToMessenger() request : $jb")
-            val botResponse: FBmessengerBotWebhook = jacksonObjectMapper().let { it.readValue(jb) }
+            val botResponse: FBmessengerBotWebhook = Moshi.Builder().build().adapter(FBmessengerBotWebhook::class.java).fromJson(jb)
             botResponse.entry.forEach { e -> e.messaging.forEach { m -> sendMessage(m) } }
         }catch(e: Exception){
             e.printStackTrace()
@@ -81,7 +76,7 @@ class FBMessengerBotService {
     fun sendOneRequest(client: CloseableHttpClient, post: HttpPost, recipient: FBMessengerBotWebhookRecipient, oneString: String) {
         recipient.message = mapOf("text" to oneString)
 
-        val json: String = jacksonObjectMapper().let { it.writeValueAsString(recipient) }
+        val json: String = Moshi.Builder().build().adapter(FBMessengerBotWebhookRecipient::class.java).toJson(recipient)//jacksonObjectMapper().let { it.writeValueAsString(recipient) }
 
         logger.info("sendOneRequest() message: $json")
         client.execute(post.apply { entity = StringEntity(json, StandardCharsets.UTF_8) })

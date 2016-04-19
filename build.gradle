@@ -35,6 +35,7 @@ dependencies {
 	compile('com.fasterxml.jackson.core:jackson-annotations:2.7.0')
 	compile('com.fasterxml.jackson.core:jackson-core:2.7.0')
 	compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.7.1-2"
+	compile 'com.squareup.moshi:moshi:1.0.0'
 	compile('org.apache.httpcomponents:httpasyncclient:4.1.1')
 	compile('org.apache.httpcomponents:httpcore-nio:4.4.4')
 	testCompile('org.springframework.boot:spring-boot-starter-test') 
