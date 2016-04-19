@@ -41,16 +41,16 @@ class FBMessengerBotService {
 
     fun sentToMessenger(request: HttpServletRequest): String {
         try {
-            val s = request.reader.lines().toArray()
-            s.forEach { println(it.toString()) }
-            println("first : ${request.reader.lines().toArray()}")
-            val sb = StringBuilder()
-            request.reader.lines().forEach { sb.append(it) }
-            val jb = sb.toString()
+
+//            logger.info("first : ${request.reader.lines()}")
+//            val sb = StringBuilder()
+//            request.reader.lines().forEach { sb.append(it) }
+            val jb = request.getParameter("json")//sb.toString()
             logger.info("sentToMessenger() request : $jb")
             val botResponse: FBmessengerBotWebhook = Moshi.Builder().build().adapter(FBmessengerBotWebhook::class.java).fromJson(jb)
             botResponse.entry.forEach { e -> e.messaging.forEach { m -> sendMessage(m) } }
         }catch(e: Exception){
+            logger.info("ERROR --- ")
             e.printStackTrace()
         }
         return "ok"
