@@ -41,13 +41,19 @@ class FBMessengerBotService {
     }
 
     fun sentToMessenger(request: HttpServletRequest): String {
-        logger.info("first : ${request.reader.lines().toArray()}")
-        val sb = StringBuilder()
-        request.reader.lines().toArray().forEach { sb.append(it) }
-        val jb = sb.toString()
-        logger.info("sentToMessenger() request : $jb")
-        val botResponse = ObjectMapper().readValue(jb, FBmessengerBotWebhook::class.java)
-        botResponse.entry.forEach { e -> e.messaging.forEach { m -> sendMessage(m) } }
+        try {
+            val s = request.reader.lines().toArray()
+            s.forEach { println(it.toString()) }
+            println("first : ${request.reader.lines().toArray()}")
+            val sb = StringBuilder()
+            request.reader.lines().toArray().forEach { sb.append(it) }
+            val jb = sb.toString()
+            logger.info("sentToMessenger() request : $jb")
+            val botResponse = ObjectMapper().readValue(jb, FBmessengerBotWebhook::class.java)
+            botResponse.entry.forEach { e -> e.messaging.forEach { m -> sendMessage(m) } }
+        }catch(e: Exception){
+            e.printStackTrace()
+        }
         return "ok"
     }
 
