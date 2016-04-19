@@ -81,7 +81,7 @@ class FBMessengerBotService {
     fun sendOneRequest(client: CloseableHttpClient, post: HttpPost, recipient: FBMessengerBotWebhookRecipient, oneString: String) {
         recipient.message = mapOf("text" to oneString)
 
-        val json: String = ObjectMapper().writeValueAsString(recipient)
+        val json: String = jacksonObjectMapper().let { it.writeValueAsString(recipient) }
 
         logger.info("sendOneRequest() message: $json")
         client.execute(post.apply { entity = StringEntity(json, StandardCharsets.UTF_8) })
