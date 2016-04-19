@@ -45,7 +45,7 @@ class FBMessengerBotService {
             s.forEach { println(it.toString()) }
             println("first : ${request.reader.lines().toArray()}")
             val sb = StringBuilder()
-            request.reader.lines().toArray().forEach { sb.append(it) }
+            request.reader.lines().forEach { sb.append(it) }
             val jb = sb.toString()
             logger.info("sentToMessenger() request : $jb")
             val botResponse: FBmessengerBotWebhook = Moshi.Builder().build().adapter(FBmessengerBotWebhook::class.java).fromJson(jb)
