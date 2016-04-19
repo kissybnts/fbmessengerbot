@@ -5,5 +5,5 @@ import java.math.BigDecimal
 /**
  * .
  */
-data class FBMessengerBotWebhookEntryMessagingMessage(val mid: String = "", val seq: BigDecimal = BigDecimal(0), val text: String = "") {
+data class FBMessengerBotWebhookEntryMessagingMessage(val mid: String = "", val seq: Long = 0, val text: String = "") {
 }
