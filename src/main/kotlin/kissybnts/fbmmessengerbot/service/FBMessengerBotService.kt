@@ -2,6 +2,9 @@ package kissybnts.fbmmessengerbot.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import kissybnts.fbmmessengerbot.model.FBMessengerBotWebhookEntryMessaging
 import kissybnts.fbmmessengerbot.model.FBMessengerBotWebhookEntryMessagingMessage
 import kissybnts.fbmmessengerbot.model.FBMessengerBotWebhookRecipient
@@ -50,7 +53,7 @@ class FBMessengerBotService {
             request.reader.lines().toArray().forEach { sb.append(it) }
             val jb = sb.toString()
             logger.info("sentToMessenger() request : $jb")
-            val botResponse = ObjectMapper().registerModule(KotlinModule()).readValue(jb, FBmessengerBotWebhook::class.java)
+            val botResponse: FBmessengerBotWebhook = jacksonObjectMapper().let { it.readValue(jb) }
             botResponse.entry.forEach { e -> e.messaging.forEach { m -> sendMessage(m) } }
         }catch(e: Exception){
             e.printStackTrace()
@@ -66,7 +69,6 @@ class FBMessengerBotService {
             val recipient: FBMessengerBotWebhookRecipient = FBMessengerBotWebhookRecipient(messaging.sender)
             val post: HttpPost = HttpPost(builder.build()).apply { setHeader("Content-Type", "application/json; charset=UTF-8") }
 
-            //val text: List<String> = message.text.split("")
             logger.info("sendMessage() text: ${message.text}")
             HttpClients.createDefault().use { sendOneRequest(it, post, recipient, message.text) }
         } catch(ie: IOException) {
