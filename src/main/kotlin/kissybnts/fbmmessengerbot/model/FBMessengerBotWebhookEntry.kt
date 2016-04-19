@@ -1,6 +1,7 @@
 package kissybnts.fbmmessengerbot.model
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonProperty
 import java.math.BigDecimal
 
 /**
@@ -8,8 +9,11 @@ import java.math.BigDecimal
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 class FBMessengerBotWebhookEntry() {
+    @JsonProperty
     lateinit var id: BigDecimal
+    @JsonProperty
     lateinit var time: BigDecimal
+    @JsonProperty
     lateinit var messaging: List<FBMessengerBotWebhookEntryMessaging>
 
     constructor(id: BigDecimal, time: BigDecimal, messaging: List<FBMessengerBotWebhookEntryMessaging>): this(){
