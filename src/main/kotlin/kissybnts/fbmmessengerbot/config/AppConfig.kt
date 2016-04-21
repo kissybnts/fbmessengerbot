@@ -21,7 +21,7 @@ open class AppConfig() {
         val databaseUrl: String? = System.getenv("DATABASE_URL")
         databaseUrl?: throw Exception("DATABASE_URL is nothing")
         val uri = URI(databaseUrl)
-        val url = "jdbc:postgresql://${uri.host}${uri.path}:${uri.port}${uri.path}"
+        val url = "jdbc:postgresql://${uri.host}:${uri.port}${uri.path}"
         val userName = uri.userInfo.split(":")[0]
         val password = uri.userInfo.split(":")[1]
 
