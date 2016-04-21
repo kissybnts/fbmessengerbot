@@ -1,7 +1,4 @@
-package kissybnts.fbmmessengerbot.model
-
-import com.fasterxml.jackson.annotation.JsonProperty
-import java.math.BigDecimal
+package kissybnts.fbmmessengerbot.dto
 
 /**
  * Created by kishida on 2016/04/17.

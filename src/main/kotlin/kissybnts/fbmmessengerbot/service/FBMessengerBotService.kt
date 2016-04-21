@@ -1,16 +1,15 @@
 package kissybnts.fbmmessengerbot.service
 
 import com.squareup.moshi.Moshi
-import kissybnts.fbmmessengerbot.model.FBMessengerBotWebhookEntryMessaging
-import kissybnts.fbmmessengerbot.model.FBMessengerBotWebhookEntryMessagingMessage
-import kissybnts.fbmmessengerbot.model.FBMessengerBotWebhookRecipient
-import kissybnts.fbmmessengerbot.model.FBmessengerBotWebhook
+import kissybnts.fbmmessengerbot.dto.*
+import kissybnts.fbmmessengerbot.model.MessageGenerator
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.client.utils.URIBuilder
 import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.CloseableHttpClient
 import org.apache.http.impl.client.HttpClients
 import org.apache.log4j.Logger
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.io.IOException
 import java.nio.charset.StandardCharsets
@@ -20,11 +19,12 @@ import javax.servlet.http.HttpServletRequest
  * .
  */
 @Service
-class FBMessengerBotService {
-    private val VERIFY_TOKEN: String = System.getenv("FBMESSENGERBOT_VERIFY_TOKEN")
-    private val ACCESS_TOKEN: String = System.getenv("FBMESSENGERBOT_ACCESS_TOKEN")
+class FBMessengerBotService @Autowired constructor(val model: MessageGenerator) {
+    private val VERIFY_TOKEN: String = "" //System.getenv("FBMESSENGERBOT_VERIFY_TOKEN")
+    private val ACCESS_TOKEN: String = "" //System.getenv("FBMESSENGERBOT_ACCESS_TOKEN")
     private val ENDPOINT: String = "https://graph.facebook.com/v2.6/me/messages"
     private val logger: Logger = Logger.getLogger(FBMessengerBotService::class.java)
+
 
     fun verify(request: HttpServletRequest): String {
         try {
@@ -41,30 +41,30 @@ class FBMessengerBotService {
 
     fun sentToMessenger(request: HttpServletRequest): String {
         try {
-            logger.info("request : $request (END)")
-            val sb = StringBuilder()
-            request.reader.lines().forEach { sb.append(it) }
-            val jb = sb.toString()
-            logger.info("sentToMessenger() request : $jb (END)")
+            val jb = StringBuilder().apply { request.reader.lines().forEach { append(it) } }.toString()
             val botResponse: FBmessengerBotWebhook = Moshi.Builder().build().adapter(FBmessengerBotWebhook::class.java).fromJson(jb)
-            botResponse.entry.forEach { e -> e.messaging.forEach { m -> sendMessage(m) } }
+            sendMessage(botResponse.entry.getOrNull(0)?: throw Exception("entry あらへん"))
         }catch(e: Exception){
-            logger.info("ERROR --- ")
+            logger.error("ERROR --- ")
             e.printStackTrace()
         }
         return "ok"
     }
 
-    fun sendMessage(messaging: FBMessengerBotWebhookEntryMessaging) {
+    private fun sendMessage(entry: FBMessengerBotWebhookEntry) {
         try {
-            val message: FBMessengerBotWebhookEntryMessagingMessage = messaging.message
 
             val builder: URIBuilder = URIBuilder(ENDPOINT).apply { setParameter("access_token", ACCESS_TOKEN) }
-            val recipient: FBMessengerBotWebhookRecipient = FBMessengerBotWebhookRecipient(messaging.sender)
+            val recipient: FBMessengerBotWebhookRecipient = FBMessengerBotWebhookRecipient(entry.messaging.getOrNull(0)?.sender?: throw  Exception())
             val post: HttpPost = HttpPost(builder.build()).apply { setHeader("Content-Type", "application/json; charset=UTF-8") }
 
-            logger.info("sendMessage() text: ${message.text}")
-            HttpClients.createDefault().use { sendOneRequest(it, post, recipient, message.text) }
+            logger.info("receive message : ${entry.messaging.map { it.message.text }.joinToString()}")
+
+            val returnMessage = model.generate(entry)
+
+            logger.info("return message : $returnMessage")
+
+            HttpClients.createDefault().use { sendOneRequest(it, post, recipient, returnMessage) }
         } catch(ie: IOException) {
             println("sendMessage : IOException")
         } catch(e: Exception) {
@@ -72,12 +72,11 @@ class FBMessengerBotService {
         }
     }
 
-    fun sendOneRequest(client: CloseableHttpClient, post: HttpPost, recipient: FBMessengerBotWebhookRecipient, oneString: String) {
+    private fun sendOneRequest(client: CloseableHttpClient, post: HttpPost, recipient: FBMessengerBotWebhookRecipient, oneString: String) {
         recipient.message = mapOf("text" to oneString)
 
-        val json: String = Moshi.Builder().build().adapter(FBMessengerBotWebhookRecipient::class.java).toJson(recipient)//jacksonObjectMapper().let { it.writeValueAsString(recipient) }
+        val json: String = Moshi.Builder().build().adapter(FBMessengerBotWebhookRecipient::class.java).toJson(recipient)
 
-        logger.info("sendOneRequest() message: $json")
         client.execute(post.apply { entity = StringEntity(json, StandardCharsets.UTF_8) })
     }
 }

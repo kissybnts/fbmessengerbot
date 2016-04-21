@@ -1,6 +1,4 @@
-package kissybnts.fbmmessengerbot.model
-
-import java.math.BigDecimal
+package kissybnts.fbmmessengerbot.dto
 
 /**
  * .

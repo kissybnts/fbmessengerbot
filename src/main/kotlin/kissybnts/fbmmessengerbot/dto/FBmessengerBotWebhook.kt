@@ -1,4 +1,4 @@
-package kissybnts.fbmmessengerbot.model
+package kissybnts.fbmmessengerbot.dto
 
 /**
  * .
