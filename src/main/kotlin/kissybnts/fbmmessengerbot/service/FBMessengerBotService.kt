@@ -20,8 +20,8 @@ import javax.servlet.http.HttpServletRequest
  */
 @Service
 class FBMessengerBotService @Autowired constructor(val model: MessageGenerator) {
-    private val VERIFY_TOKEN: String = "" //System.getenv("FBMESSENGERBOT_VERIFY_TOKEN")
-    private val ACCESS_TOKEN: String = "" //System.getenv("FBMESSENGERBOT_ACCESS_TOKEN")
+    private val VERIFY_TOKEN: String = System.getenv("FBMESSENGERBOT_VERIFY_TOKEN")
+    private val ACCESS_TOKEN: String = System.getenv("FBMESSENGERBOT_ACCESS_TOKEN")
     private val ENDPOINT: String = "https://graph.facebook.com/v2.6/me/messages"
     private val logger: Logger = Logger.getLogger(FBMessengerBotService::class.java)
 
@@ -55,7 +55,7 @@ class FBMessengerBotService @Autowired constructor(val model: MessageGenerator) 
         try {
 
             val builder: URIBuilder = URIBuilder(ENDPOINT).apply { setParameter("access_token", ACCESS_TOKEN) }
-            val recipient: FBMessengerBotWebhookRecipient = FBMessengerBotWebhookRecipient(entry.messaging.getOrNull(0)?.sender?: throw  Exception())
+
             val post: HttpPost = HttpPost(builder.build()).apply { setHeader("Content-Type", "application/json; charset=UTF-8") }
 
             logger.info("receive message : ${entry.messaging.map { it.message.text }.joinToString()}")
@@ -64,7 +64,12 @@ class FBMessengerBotService @Autowired constructor(val model: MessageGenerator) 
 
             logger.info("return message : $returnMessage")
 
-            HttpClients.createDefault().use { sendOneRequest(it, post, recipient, returnMessage) }
+            val senderList = entry.messaging.map { it.sender }.toList()
+
+            senderList.forEach {
+                val recipient = FBMessengerBotWebhookRecipient(it)
+                HttpClients.createDefault().use { d -> sendOneRequest(d, post, recipient, returnMessage) }
+            }
         } catch(ie: IOException) {
             println("sendMessage : IOException")
         } catch(e: Exception) {

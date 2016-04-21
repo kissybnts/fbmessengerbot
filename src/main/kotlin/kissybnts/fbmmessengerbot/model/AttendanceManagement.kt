@@ -5,6 +5,7 @@ import kissybnts.fbmmessengerbot.dto.FBMessengerBotWebhookEntry
 import kissybnts.fbmmessengerbot.repository.TimeCardRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 
 /**
  * .
@@ -21,6 +22,7 @@ class AttendanceManagement @Autowired constructor(private val repository: TimeCa
         }
     }
 
+    @Transactional
     fun end(entry: FBMessengerBotWebhookEntry): String {
         return try {
             repository.otsukare(TimeCard.TimeCardPK(entry.id))
@@ -30,6 +32,7 @@ class AttendanceManagement @Autowired constructor(private val repository: TimeCa
         }
     }
 
+    @Transactional
     fun revert(entry: FBMessengerBotWebhookEntry): String {
         try {
             val card: TimeCard? = repository.findOne(TimeCard.TimeCardPK(entry.id))
@@ -46,6 +49,7 @@ class AttendanceManagement @Autowired constructor(private val repository: TimeCa
         }
     }
 
+    @Transactional
     fun show(entry: FBMessengerBotWebhookEntry): String = try{ repository.findOne(TimeCard.TimeCardPK(entry.id)).toString() } catch(e: Exception) { errorProc(e) }
 
     fun showWeek(entry: FBMessengerBotWebhookEntry): String {
@@ -61,6 +65,7 @@ class AttendanceManagement @Autowired constructor(private val repository: TimeCa
         }
     }
 
+    @Transactional
     fun deleteAll(entry: FBMessengerBotWebhookEntry): String{
         return try {
             repository.deleteAllBySenderId(entry.id)
