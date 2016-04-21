@@ -43,7 +43,7 @@ class FBMessengerBotService @Autowired constructor(val model: MessageGenerator) 
         try {
             val jb = StringBuilder().apply { request.reader.lines().forEach { append(it) } }.toString()
             val botResponse: FBmessengerBotWebhook = Moshi.Builder().build().adapter(FBmessengerBotWebhook::class.java).fromJson(jb)
-            sendMessage(botResponse.entry.getOrNull(0)?: throw Exception("entry あらへん"))
+            botResponse.entry.forEach { sendMessage(it) }
         }catch(e: Exception){
             logger.error("ERROR --- ")
             e.printStackTrace()
