@@ -82,6 +82,8 @@ class FBMessengerBotService @Autowired constructor(val model: MessageGenerator) 
 
         val json: String = Moshi.Builder().build().adapter(FBMessengerBotWebhookRecipient::class.java).toJson(recipient)
 
+        println("sendOneRequest JSON : $json")
+
         client.execute(post.apply { entity = StringEntity(json, StandardCharsets.UTF_8) })
     }
 }
