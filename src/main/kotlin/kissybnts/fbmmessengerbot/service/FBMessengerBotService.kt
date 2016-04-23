@@ -2,6 +2,7 @@ package kissybnts.fbmmessengerbot.service
 
 import com.squareup.moshi.Moshi
 import kissybnts.fbmmessengerbot.dto.*
+import kissybnts.fbmmessengerbot.errorProc
 import kissybnts.fbmmessengerbot.model.MessageGenerator
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.client.utils.URIBuilder
@@ -34,7 +35,7 @@ class FBMessengerBotService @Autowired constructor(val model: MessageGenerator) 
                 return paramMap["hub.challenge"]!!.joinToString()
             }
         } catch(e: Exception){
-            e.printStackTrace()
+            e.errorProc()
         }
         return "failed"
     }
@@ -45,8 +46,7 @@ class FBMessengerBotService @Autowired constructor(val model: MessageGenerator) 
             val botResponse: FBmessengerBotWebhook = Moshi.Builder().build().adapter(FBmessengerBotWebhook::class.java).fromJson(jb)
             botResponse.entry.forEach { sendMessage(it) }
         }catch(e: Exception){
-            logger.error("ERROR --- ")
-            e.printStackTrace()
+            e.errorProc()
         }
         return "ok"
     }
@@ -73,7 +73,7 @@ class FBMessengerBotService @Autowired constructor(val model: MessageGenerator) 
         } catch(ie: IOException) {
             println("sendMessage : IOException")
         } catch(e: Exception) {
-            e.printStackTrace()
+            e.errorProc()
         }
     }
 

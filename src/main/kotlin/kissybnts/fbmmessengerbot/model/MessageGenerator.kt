@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
  * .
  */
 @Component
-class MessageGenerator @Autowired constructor(private val manager: AttendanceManagement) {
+open class MessageGenerator @Autowired constructor(private val manager: AttendanceManagement) {
     fun generate(entry: FBMessengerBotWebhookEntry): String {
         return getMessage(entry)
     }

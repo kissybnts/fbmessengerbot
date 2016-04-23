@@ -2,6 +2,7 @@ package kissybnts.fbmmessengerbot.model
 
 import kissybnts.fbmmessengerbot.domain.TimeCard
 import kissybnts.fbmmessengerbot.dto.FBMessengerBotWebhookEntry
+import kissybnts.fbmmessengerbot.errorProc
 import kissybnts.fbmmessengerbot.repository.TimeCardRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
@@ -11,14 +12,14 @@ import org.springframework.transaction.annotation.Transactional
  * .
  */
 @Component
-class AttendanceManagement @Autowired constructor(private val repository: TimeCardRepository) {
+open class AttendanceManagement @Autowired constructor(private val repository: TimeCardRepository) {
 
     fun start(entry: FBMessengerBotWebhookEntry): String {
         return try {
             repository.save(TimeCard(entry.id))
             "頑張ってこー"
         } catch(e: Exception) {
-            errorProc(e)
+            e.errorProc()
         }
     }
 
@@ -28,7 +29,7 @@ class AttendanceManagement @Autowired constructor(private val repository: TimeCa
             repository.otsukare(TimeCard.TimeCardPK(entry.id))
             "おつかれさまでした"
         } catch(e: Exception) {
-            errorProc(e)
+            e.errorProc()
         }
     }
 
@@ -45,12 +46,12 @@ class AttendanceManagement @Autowired constructor(private val repository: TimeCa
                 "あとちょっと頑張ろー"
             }
         } catch(e: Exception) {
-            return errorProc(e)
+            return e.errorProc()
         }
     }
 
     @Transactional
-    fun show(entry: FBMessengerBotWebhookEntry): String = try{ repository.findOne(TimeCard.TimeCardPK(entry.id)).toString() } catch(e: Exception) { errorProc(e) }
+    fun show(entry: FBMessengerBotWebhookEntry): String = try{ repository.findOne(TimeCard.TimeCardPK(entry.id)).toString() } catch(e: Exception) { e.errorProc() }
 
     fun showWeek(entry: FBMessengerBotWebhookEntry): String {
         try {
@@ -61,7 +62,7 @@ class AttendanceManagement @Autowired constructor(private val repository: TimeCa
                 cards.map { "${toString()}¥r¥n" }.joinToString()
             }
         } catch(e: Exception) {
-            return errorProc(e)
+            return e.errorProc()
         }
     }
 
@@ -71,14 +72,7 @@ class AttendanceManagement @Autowired constructor(private val repository: TimeCa
             repository.deleteAllBySenderId(entry.id)
             "仕事なんてなかった"
         } catch(e: Exception) {
-            errorProc(e)
+            e.errorProc()
         }
-    }
-
-    private fun errorProc(e: Exception): String {
-        println("ERROR ------------------")
-        e.printStackTrace()
-        println("END ERROR --------------")
-        return "失敗"
     }
 }

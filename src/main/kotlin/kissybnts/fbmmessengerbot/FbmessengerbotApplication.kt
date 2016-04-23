@@ -11,3 +11,10 @@ open class FbmessengerbotApplication {
         }
     }
 }
+
+fun Exception.errorProc(): String {
+    println("ERROR ----------------")
+    this.printStackTrace()
+    println("ERROR END ------------")
+    return "失敗"
+}
